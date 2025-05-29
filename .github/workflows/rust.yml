@@ -3,7 +3,7 @@ name: Rust Build and Release
 on:
   push:
     tags:
-      - '*.*.*'  # Triggers on new tags like v1.0.0
+      - '*.*.*'  
   pull_request:
     branches:
       - "main"
@@ -17,7 +17,7 @@ jobs:
 
     strategy:
       matrix:
-        platform: [x86_64-pc-windows-msvc, aarch64-unknown-linux-gnu, x86_64-apple-darwin]  # Define your platforms here
+        platform: [x86_64-pc-windows-msvc, aarch64-unknown-linux-gnu, x86_64-apple-darwin]
 
     steps:
     - name: Checkout code
