@@ -1,22 +1,45 @@
-name: Rust
+name: Rust Build and Release
 
 on:
   push:
-    branches: [ "main" ]
+    tags:
+      - '*.*.*'  # Triggers on new tags like v1.0.0
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - "main"
 
 env:
   CARGO_TERM_COLOR: always
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        platform: [x86_64-pc-windows-msvc, aarch64-unknown-linux-gnu, x86_64-apple-darwin]  # Define your platforms here
+
     steps:
-    - uses: actions/checkout@v4
-    - name: Build
-      run: cargo build --verbose
-    - name: Run tests
-      run: cargo test --verbose
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Rust
+      uses: actions/setup-rust@v1
+      with:
+        rust-version: stable
+
+    - name: Add target for cross-compilation
+      run: |
+        rustup target add ${{ matrix.platform }}
+
+    - name: Build release
+      run: |
+        cargo build --release --target ${{ matrix.platform }}  # Build the project for each platform in the matrix
+
+    - name: Upload release binaries as GitHub release assets
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          target/${{ matrix.platform }}/release/my-rust-tool  # Path to the compiled binary
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
